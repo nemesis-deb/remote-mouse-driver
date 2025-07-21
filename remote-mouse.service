@@ -1,0 +1,13 @@
+[Unit]
+Description=Remote Mouse Driver
+After=multi-user.target
+
+[Service]
+Type=simple
+User=nemesis
+ExecStart=/home/nemesis/.local/bin/remote-mouse-driver
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
