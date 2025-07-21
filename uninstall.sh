@@ -5,6 +5,8 @@ set -e
 
 SERVICE_NAME="remote-mouse.service"
 SERVICE_DEST="/etc/systemd/system/$SERVICE_NAME"
+DRIVER_DIR=$(pwd)
+VENV_DIR="$DRIVER_DIR/venv"
 
 echo "Starting uninstallation of Remote Mouse Driver..."
 
@@ -25,6 +27,15 @@ sudo systemctl daemon-reload
 
 # 3. Uninstall the Python package
 echo "Uninstalling the remote-mouse-driver package..."
-pip uninstall -y remote-mouse-driver
+if [ -d "$VENV_DIR" ]; then
+    source "$VENV_DIR/bin/activate"
+    pip uninstall -y remote-mouse-driver
+    deactivate
+fi
+
+# 4. Remove the virtual environment
+echo "Removing the virtual environment..."
+rm -rf "$VENV_DIR"
+
 
 echo "Uninstallation complete."

@@ -7,22 +7,33 @@ set -e
 SERVICE_NAME="remote-mouse.service"
 SERVICE_DEST="/etc/systemd/system/$SERVICE_NAME"
 DRIVER_DIR=$(pwd)
+VENV_DIR="$DRIVER_DIR/venv"
 
 echo "Starting installation of Remote Mouse Driver..."
 
-# 1. Install system and Python dependencies
-echo "Installing ydotool and python-pip..."
-sudo pacman -Syu --noconfirm ydotool python-pip
+# 1. Install system dependencies
+echo "Installing ydotool..."
+sudo pacman -Syu --noconfirm ydotool
+
+# 2. Create and activate a Python virtual environment
+echo "Creating Python virtual environment..."
+python -m venv "$VENV_DIR"
+
+# Activate the virtual environment
+source "$VENV_DIR/bin/activate"
 
 echo "Installing Python dependencies from requirements.txt..."
-pip install --user -r requirements.txt
+pip install -r requirements.txt
 
-# 2. Install the driver
+# 3. Install the driver
 echo "Installing the remote-mouse-driver package..."
-pip install --user .
+pip install .
 
-# 3. Set up the systemd service
+# 4. Set up the systemd service
 echo "Setting up the systemd service..."
+# Update the ExecStart path in the service file
+sed -i "s|ExecStart=.*|ExecStart=$VENV_DIR/bin/remote-mouse-driver|" "$DRIVER_DIR/$SERVICE_NAME"
+
 sudo cp "$DRIVER_DIR/$SERVICE_NAME" "$SERVICE_DEST"
 
 # Set correct permissions for the service file
